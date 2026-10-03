@@ -10,9 +10,7 @@ from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain_classic.retrievers import ContextualCompressionRetriever
-from langchain_classic.retrievers.document_compressors import CrossEncoderReranker
-from langchain_community.cross_encoders import HuggingFaceCrossEncoder
+
 
 load_dotenv()
 
@@ -46,16 +44,7 @@ vectorstore = Chroma.from_documents(
     persist_directory="./chroma_db"
 )
 
-base_retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
-
-print("Loading reranking model...")
-cross_encoder = HuggingFaceCrossEncoder(model_name="BAAI/bge-reranker-base")
-compressor = CrossEncoderReranker(model=cross_encoder, top_n=3)
-
-retriever = ContextualCompressionRetriever(
-    base_compressor=compressor,
-    base_retriever=base_retriever
-)
+retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
 template = """You are the virtual assistant of GreenLeaf Wellness a wellness and spa center in Italy.
 Answer the user question based ONLY on the following context.
