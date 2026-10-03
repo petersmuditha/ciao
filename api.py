@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
@@ -36,7 +36,11 @@ for chunk in chunks:
         chunk.metadata["source"] = os.path.basename(chunk.metadata["source"])
 
 print("Creating vector database...")
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-small",
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url="https://api.groq.com/openai/v1"
+)
 vectorstore = Chroma.from_documents(
     documents=chunks,
     embedding=embeddings,
